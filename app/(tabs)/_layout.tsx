@@ -20,26 +20,54 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
           default: {},
         }),
-      }}>
+      }}
+    >
+      {/* My Profile */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'My Profile',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.crop.circle.fill" color={color} />
+          ),
         }}
       />
+
+      {/* Track Sleep */}
       <Tabs.Screen
-        name="explore"
+        name="sleep"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Track Sleep',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="moon.fill" color={color} />
+          ),
         }}
       />
+
+      {/* Settings */}
+      <Tabs.Screen
+        name="setting"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="gearshape.fill" color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="recommendation"
+        options={{
+          title: 'Recommendation',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="lightbulb.fill" color={color} />
+          ),
+         }}
+       />
     </Tabs>
   );
 }
