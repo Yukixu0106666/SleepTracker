@@ -1,6 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import { BlurView } from 'expo-blur';
+import * as Localization from 'expo-localization';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useThemeContext } from '../theme/ThemeContext'; // adjust path if needed
 
 interface SleepSession {
   start: string;
@@ -10,6 +21,9 @@ interface SleepSession {
 
 export default function HistoryScreen() {
   const [history, setHistory] = useState<SleepSession[]>([]);
+  const timeZoneLabel = Localization.timezone.split('/').pop()?.replace('_', ' ') || 'Local Time';
+  const { theme } = useThemeContext();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     loadHistory();
@@ -21,7 +35,6 @@ export default function HistoryScreen() {
       if (data) {
         const parsed = JSON.parse(data);
         setHistory(parsed);
-        console.log('Loaded history:', parsed);
       }
     } catch (err) {
       console.error('Failed to load sleep history:', err);
@@ -29,7 +42,6 @@ export default function HistoryScreen() {
   };
 
   const deleteSession = (index: number) => {
-    console.log('Pressed delete for index:', index);
     Alert.alert('Ready to delete?', 'Do you want to delete this sleep session?', [
       { text: 'No', style: 'cancel' },
       {
@@ -37,12 +49,10 @@ export default function HistoryScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            console.log('Confirmed deletion for:', index);
             const updated = [...history];
             updated.splice(index, 1);
             setHistory(updated);
             await AsyncStorage.setItem('sleepHistory', JSON.stringify(updated));
-            console.log('Updated history saved:', updated);
           } catch (err) {
             console.error('Error deleting session:', err);
           }
@@ -51,20 +61,40 @@ export default function HistoryScreen() {
     ]);
   };
 
+  const formatDateTime = (iso: string) => {
+    const date = new Date(iso);
+    return format(date, "MMM dd, yyyy 'at' hh:mm a");
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>🕒 Sleep History</Text>
+    <ScrollView contentContainerStyle={[styles.container, isDark && styles.containerDark]}>
+      <Text style={[styles.header, isDark && styles.textLight]}>🕒 Sleep History</Text>
       {history.length === 0 ? (
-        <Text style={styles.text}>No sleep data recorded.</Text>
+        <Text style={[styles.text, isDark && styles.textLight]}>No sleep data recorded.</Text>
       ) : (
         history.map((session, index) => (
-          <View key={index} style={styles.card}>
-            <Text style={styles.sessionTitle}>📍 Session {index + 1}</Text>
-            <Text style={styles.text}>Start: {session.start}</Text>
-            <Text style={styles.text}>End: {session.end}</Text>
-            <Text style={styles.text}>Duration: {session.duration.toFixed(2)} hrs</Text>
-            <TouchableOpacity onPress={() => deleteSession(index)} style={styles.deleteButton}>
-              <Text style={styles.delete}>🗑️ Delete</Text>
+          <View key={index} style={[styles.card, isDark && styles.cardDark]}>
+            <Text style={[styles.sessionTitle, isDark && styles.sessionTitleDark]}>
+              📍 Session {index + 1}
+            </Text>
+            <Text style={[styles.text, isDark && styles.textLight]}>
+              Start: {formatDateTime(session.start)} ({timeZoneLabel})
+            </Text>
+            <Text style={[styles.text, isDark && styles.textLight]}>
+              End: {formatDateTime(session.end)} ({timeZoneLabel})
+            </Text>
+            <Text style={[styles.text, isDark && styles.textLight]}>
+              Duration: {session.duration.toFixed(2)} hrs
+            </Text>
+            <TouchableOpacity
+              onPress={() => deleteSession(index)}
+              style={styles.deleteWrapper}
+            >
+              <BlurView intensity={30} tint="light" style={styles.blur}>
+                <Text style={[styles.deleteText, isDark ? styles.deleteTextDark : styles.deleteTextLight]}>
+                🗑️ Delete
+                </Text>
+              </BlurView>
             </TouchableOpacity>
           </View>
         ))
@@ -76,43 +106,62 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#111',
+    backgroundColor: '#fff',
     minHeight: '100%',
+  },
+  containerDark: {
+    backgroundColor: '#0A1627',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#000',
     marginBottom: 20,
   },
   card: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: '#f3f4f6',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
   },
+  cardDark: {
+    backgroundColor: '#1E293B',
+  },
   sessionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ff6666',
+    color: '#d9534f',
     marginBottom: 5,
+  },
+  sessionTitleDark: {
+    color: '#ff8888',
   },
   text: {
     fontSize: 15,
-    color: 'white',
+    color: '#000',
     marginBottom: 4,
   },
-  deleteButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: '#400',
-    borderRadius: 6,
+  textLight: {
+    color: '#fff',
+  },
+  deleteWrapper: {
     alignSelf: 'flex-start',
     marginTop: 8,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
-  delete: {
-    color: '#ff4d4d',
+  blur: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+    deleteText: {
     fontWeight: '600',
   },
+  deleteTextLight: {
+    color: '#000',
+  },
+  deleteTextDark: {
+    color: '#fff',
+  },
 });
-
