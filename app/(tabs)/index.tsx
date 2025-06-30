@@ -2,17 +2,21 @@ import { Link } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeContext } from '../../theme/ThemeContext';
 
 export default function HomeScreen() {
+  const { theme } = useThemeContext();
+  const isDark = theme === 'dark';
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       {/* Title row with emoji */}
       <View style={styles.titleRow}>
-        <Text style={styles.titleText}>Sleep Tracker</Text>
+        <Text style={[styles.titleText, isDark && styles.titleTextDark]}>Sleep Tracker</Text>
         <Text style={styles.emoji}>😴</Text>
       </View>
 
-      <Text style={styles.subtitle}>
+      <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
         Track your sleep sessions and rest better.
       </Text>
 
@@ -34,10 +38,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A1627',
+    backgroundColor: '#fff',
     padding: 24,
-    justifyContent: 'center', // centers vertically
-    alignItems: 'center',     // centers horizontally
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  containerDark: {
+    backgroundColor: '#0A1627',
   },
   titleRow: {
     flexDirection: 'row',
@@ -48,6 +55,9 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 32,
     fontWeight: 'bold',
+    color: '#000',
+  },
+  titleTextDark: {
     color: '#FFFFFF',
   },
   emoji: {
@@ -56,9 +66,12 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#AAB8CC',
+    color: '#333',
     textAlign: 'center',
     marginBottom: 24,
+  },
+  subtitleDark: {
+    color: '#AAB8CC',
   },
   button: {
     backgroundColor: '#3C6EB4',
