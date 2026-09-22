@@ -1,4 +1,7 @@
 import { getSleepHistory } from '../services/sleepSync';
+import { predictSleepQuality, SleepQualityPrediction } from '../services/sleepQualityModel';
+import type { UserProfile } from '../services/dailyRecommendation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -9,6 +12,7 @@ import { useLanguage } from '../theme/LanguageContext';
 interface SleepEntry {
   date: string;
   duration: number;
+  prediction: SleepQualityPrediction;
 }
 
 export default function StatsScreen() {
@@ -20,7 +24,11 @@ export default function StatsScreen() {
   useEffect(() => {
     const loadSleepData = async () => {
       try {
-        const parsed = await getSleepHistory();
+        const [parsed, profileData] = await Promise.all([
+          getSleepHistory(),
+          AsyncStorage.getItem('userProfile'),
+        ]);
+        const profile = profileData ? (JSON.parse(profileData) as UserProfile) : undefined;
         if (parsed.length) {
           const grouped: Record<string, number> = {};
 
@@ -42,6 +50,11 @@ export default function StatsScreen() {
           const formatted = last7.map((date) => ({
             date,
             duration: parseFloat(grouped[date].toFixed(2)),
+            prediction: predictSleepQuality({
+              start: `${date}T00:00:00.000Z`,
+              end: `${date}T00:00:00.000Z`,
+              duration: parseFloat(grouped[date].toFixed(2)),
+            }, profile),
           }));
 
           setSleepData(formatted);
@@ -129,6 +142,22 @@ export default function StatsScreen() {
               </Text>
             )}
           </View>
+
+          <View style={[styles.predictionCard, isDark && styles.summaryDark]}>
+            <Text style={[styles.predictionTitle, isDark && styles.textDark]}>{t('predictedTrend')}</Text>
+            {sleepData.map((entry) => (
+              <View key={entry.date} style={styles.predictionRow}>
+                <Text style={[styles.predictionDate, isDark && styles.textDark]}>{formatChartDate(entry.date)}</Text>
+                <View style={[styles.predictionTrack, isDark && styles.predictionTrackDark]}>
+                  <View style={[styles.predictionFill, { width: `${entry.prediction.score}%` }]} />
+                </View>
+                <Text style={[styles.predictionScore, isDark && styles.textDark]}>{entry.prediction.score}%</Text>
+              </View>
+            ))}
+            <Text style={[styles.predictionMethod, isDark && styles.textDark]}>{t('modelMethod')}</Text>
+            <Text style={[styles.predictionValidation, isDark && styles.textDark]}>{t('modelValidation')}</Text>
+            <Text style={[styles.predictionDisclaimer, isDark && styles.textDark]}>{t('modelDisclaimer')}</Text>
+          </View>
         </>
       ) : (
         <Text style={[styles.text, isDark && styles.textDark]}>{t('noStats')}</Text>
@@ -171,5 +200,71 @@ const styles = StyleSheet.create({
   },
   summaryDark: {
     backgroundColor: '#1a1a2e',
+  },
+  predictionCard: {
+    backgroundColor: '#EDF7FA',
+    borderColor: '#C7E2EA',
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 16,
+    padding: 15,
+  },
+  predictionTitle: {
+    color: '#123044',
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 14,
+  },
+  predictionRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  predictionDate: {
+    color: '#123044',
+    fontSize: 12,
+    width: 56,
+  },
+  predictionTrack: {
+    backgroundColor: '#D7E6EA',
+    borderRadius: 4,
+    flex: 1,
+    height: 8,
+    marginHorizontal: 9,
+    overflow: 'hidden',
+  },
+  predictionTrackDark: {
+    backgroundColor: '#334155',
+  },
+  predictionFill: {
+    backgroundColor: '#176C89',
+    borderRadius: 4,
+    height: '100%',
+  },
+  predictionScore: {
+    color: '#123044',
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'right',
+    width: 38,
+  },
+  predictionMethod: {
+    color: '#334155',
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 8,
+  },
+  predictionValidation: {
+    color: '#334155',
+    fontSize: 11,
+    lineHeight: 17,
+    marginTop: 6,
+  },
+  predictionDisclaimer: {
+    color: '#64748B',
+    fontSize: 10,
+    fontStyle: 'italic',
+    lineHeight: 15,
+    marginTop: 8,
   },
 });

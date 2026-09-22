@@ -2,7 +2,7 @@
 
 SleepTracker is a cross-platform mobile demo that records sleep sessions, visualizes weekly trends, and turns recent sleep history into personalized daily wellness recommendations. Its companion ML pipeline compares Logistic Regression, Random Forest, and XGBoost with leakage-aware grouped cross-validation, achieving a 0.982 mean macro-F1 score for sleep-quality classification on the development dataset.
 
-> The classifier is an offline portfolio experiment and is not yet connected to the app's recommendation flow or clinically validated.
+The Morning Report deploys a compact Logistic Regression model using app-available sleep duration, age, and BMI-category inputs; it reached 0.960 mean macro-F1 in grouped 5-fold development validation. The broader three-model comparison remains an offline experiment, and neither result is clinically validated.
 
 ## Demo
 
@@ -11,7 +11,9 @@ npm install
 npm run web
 ```
 
-In the app, use **Track Sleep** to record a session, then open **History**, **Stats**, and **Recommendations** to demonstrate the end-to-end user flow. To reproduce the ML comparison, install `requirements-analysis.txt` and run `bash run_model_comparison.sh`; reports are written to `model_results/`.
+In the app, use **Track Sleep** to record a session, inspect the model-assisted Morning Report, then open **History**, **Stats**, and **Recommendations** to demonstrate the end-to-end user flow. The report exposes the predicted good-sleep probability, ranked model signals, validation result, and limitations; **Stats** applies the same model across the latest seven days. To reproduce the broader ML comparison, install `requirements-analysis.txt` and run `bash run_model_comparison.sh`; reports are written to `model_results/`.
+
+Reproduce the compact model deployed in the Morning Report with `npm run model:mobile`. Its fitted coefficients and grouped-validation metrics are saved to `model_results/mobile_sleep_quality_model.json`.
 
 ## Sleep ingestion
 

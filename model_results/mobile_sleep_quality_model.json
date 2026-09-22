@@ -1,0 +1,37 @@
+{
+  "version": "mobile-logreg-v1",
+  "features": [
+    "Age",
+    "Sleep Duration",
+    "BMI Category"
+  ],
+  "numeric_mean": [
+    42.18449197860963,
+    7.132085561497325
+  ],
+  "numeric_scale": [
+    8.661530606217877,
+    0.7945923066929989
+  ],
+  "bmi_categories": [
+    "Normal",
+    "Obese",
+    "Overweight"
+  ],
+  "coefficients": [
+    0.9908373713387714,
+    4.985193260755128,
+    0.16654945950520608,
+    -0.011995228020192919,
+    -0.14939937135159279
+  ],
+  "intercept": 3.586806613084038,
+  "validation": {
+    "macro_f1": 0.9602085328226406,
+    "poor_sleep_recall": 0.9743589743589743,
+    "roc_auc": 0.9926169809438292,
+    "folds": 5,
+    "rows": 374
+  },
+  "limitations": "Development data only; not a clinical model or prospective next-night prediction."
+}

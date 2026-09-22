@@ -4,6 +4,7 @@ import {
   AppState,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -21,6 +22,7 @@ import {
   takeCompletedSleep,
 } from '../../services/sleepActivity';
 import { persistCompletedSleep } from '../../services/sleepSessionPersistence';
+import type { SleepQualityPrediction } from '../../services/sleepQualityModel';
 import { useThemeContext } from '../../theme/ThemeContext';
 import { useLanguage } from '../../theme/LanguageContext';
 
@@ -30,6 +32,8 @@ export default function SleepScreen() {
   const [showConfirmStop, setShowConfirmStop] = useState(false);
   const [showTimingReminder, setShowTimingReminder] = useState(false);
   const [recommendation, setRecommendation] = useState<DailyRecommendation | null>(null);
+  const [qualityPrediction, setQualityPrediction] = useState<SleepQualityPrediction | null>(null);
+  const [showModelDetails, setShowModelDetails] = useState(false);
   const [isGeneratingRecommendation, setIsGeneratingRecommendation] = useState(false);
 
   const { theme } = useThemeContext();
@@ -106,12 +110,14 @@ export default function SleepScreen() {
     if (showSummary) {
       setShowConfirmStop(false);
       setShowSummaryModal(true);
+      setShowModelDetails(false);
       setIsGeneratingRecommendation(true);
     }
 
     try {
-      const generatedRecommendation = await persistCompletedSleep(session);
-      setRecommendation(generatedRecommendation);
+      const result = await persistCompletedSleep(session);
+      setRecommendation(result.recommendation);
+      setQualityPrediction(result.qualityPrediction);
     } finally {
       if (showSummary) setIsGeneratingRecommendation(false);
     }
@@ -243,7 +249,47 @@ export default function SleepScreen() {
                 {t('preparing')}
               </Text>
             ) : (
-              <View>
+              <ScrollView style={styles.summaryScroll} showsVerticalScrollIndicator={false}>
+                {qualityPrediction && (
+                  <View style={[styles.qualityCard, isDark && styles.qualityCardDark]}>
+                    <Text style={[styles.qualityEyebrow, isDark && styles.statusLabelDark]}>{t('morningReport')}</Text>
+                    <View style={styles.qualityScoreRow}>
+                      <Text style={[styles.qualityScore, isDark && styles.textDark]}>{qualityPrediction.score}%</Text>
+                      <View style={styles.qualityLabelBlock}>
+                        <Text style={[styles.qualityLabel, isDark && styles.textDark]}>
+                          {qualityPrediction.label === 'good' ? t('predictedGood') : t('predictedPoor')}
+                        </Text>
+                        <Text style={[styles.qualityCaption, isDark && styles.statusLabelDark]}>{t('goodSleepLikelihood')}</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.probabilityTrack, isDark && styles.probabilityTrackDark]}>
+                      <View style={[styles.probabilityFill, { width: `${qualityPrediction.score}%` }]} />
+                    </View>
+                    <Pressable onPress={() => setShowModelDetails((visible) => !visible)}>
+                      <Text style={styles.modelDetailsButton}>
+                        {showModelDetails ? t('hideModelDetails') : t('whyThisEstimate')}
+                      </Text>
+                    </Pressable>
+                    {showModelDetails && (
+                      <View style={[styles.modelDetails, isDark && styles.modelDetailsDark]}>
+                        <Text style={[styles.modelDetailsTitle, isDark && styles.textDark]}>{t('modelSignals')}</Text>
+                        {qualityPrediction.factors.map((factor) => {
+                          const featureLabel = factor.feature === 'duration'
+                            ? t('durationSignal')
+                            : factor.feature === 'age' ? t('ageSignal') : t('bmiSignal');
+                          return (
+                            <Text key={factor.feature} style={[styles.factorText, isDark && styles.textDark]}>
+                              {factor.direction === 'positive' ? '+' : '−'} {featureLabel}: {factor.displayValue} · {factor.direction === 'positive' ? t('positiveSignal') : t('negativeSignal')}
+                            </Text>
+                          );
+                        })}
+                        <Text style={[styles.modelCopy, isDark && styles.statusLabelDark]}>{t('modelMethod')}</Text>
+                        <Text style={[styles.modelCopy, isDark && styles.statusLabelDark]}>{t('modelValidation')}</Text>
+                        <Text style={[styles.modelDisclaimer, isDark && styles.statusLabelDark]}>{t('modelDisclaimer')}</Text>
+                      </View>
+                    )}
+                  </View>
+                )}
                 <Text style={[styles.summaryTitle, isDark && styles.textDark]}>
                   {t('sleepSupport')}
                 </Text>
@@ -255,7 +301,7 @@ export default function SleepScreen() {
                   {t('movement')}: {recommendation?.movementPlan.activity}, {recommendation?.movementPlan.durationMinutes} minutes. Start with {recommendation?.movementPlan.warmUp[0]?.name}.
                 </Text>
                 <Text style={[styles.summaryItem, isDark && styles.textDark]}>{t('mindset')}: {recommendation?.mindset}</Text>
-              </View>
+              </ScrollView>
             )}
             <Pressable onPress={() => setShowSummaryModal(false)} style={styles.closeButton}>
               <Text style={styles.continueButtonText}>{t('close')}</Text>
@@ -430,7 +476,11 @@ const styles = StyleSheet.create({
     padding: 30,
     borderRadius: 8,
     width: '86%',
+    maxHeight: '90%',
     alignItems: 'stretch',
+  },
+  summaryScroll: {
+    flexGrow: 0,
   },
   modalDark: {
     backgroundColor: '#142941',
@@ -469,6 +519,103 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 10,
     color: '#000',
+  },
+  qualityCard: {
+    backgroundColor: '#EDF7FA',
+    borderColor: '#C7E2EA',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 20,
+    padding: 16,
+  },
+  qualityCardDark: {
+    backgroundColor: '#0D2035',
+    borderColor: '#24465D',
+  },
+  qualityEyebrow: {
+    color: '#267892',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginBottom: 10,
+  },
+  qualityScoreRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  qualityScore: {
+    color: '#123044',
+    fontSize: 38,
+    fontWeight: '800',
+    marginRight: 14,
+  },
+  qualityLabelBlock: {
+    flex: 1,
+  },
+  qualityLabel: {
+    color: '#123044',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  qualityCaption: {
+    color: '#53707D',
+    fontSize: 12,
+    marginTop: 3,
+  },
+  probabilityTrack: {
+    backgroundColor: '#D7E6EA',
+    borderRadius: 4,
+    height: 7,
+    marginTop: 12,
+    overflow: 'hidden',
+  },
+  probabilityTrackDark: {
+    backgroundColor: '#24465D',
+  },
+  probabilityFill: {
+    backgroundColor: '#176C89',
+    borderRadius: 4,
+    height: '100%',
+  },
+  modelDetailsButton: {
+    color: '#176C89',
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: 12,
+  },
+  modelDetails: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
+    marginTop: 12,
+    padding: 12,
+  },
+  modelDetailsDark: {
+    backgroundColor: '#142941',
+  },
+  modelDetailsTitle: {
+    color: '#123044',
+    fontSize: 13,
+    fontWeight: '800',
+    marginBottom: 7,
+  },
+  factorText: {
+    color: '#123044',
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  modelCopy: {
+    color: '#53707D',
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 8,
+  },
+  modelDisclaimer: {
+    color: '#6B7280',
+    fontSize: 10,
+    fontStyle: 'italic',
+    lineHeight: 15,
+    marginTop: 8,
   },
   modalButtonRow: {
     flexDirection: 'row',

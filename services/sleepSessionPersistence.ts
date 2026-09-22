@@ -7,8 +7,14 @@ import {
     SleepSession,
     UserProfile,
 } from './dailyRecommendation';
+import { predictSleepQuality, SleepQualityPrediction } from './sleepQualityModel';
 
-export async function persistCompletedSleep(session: SleepSession): Promise<DailyRecommendation> {
+export type SleepCompletionResult = {
+  recommendation: DailyRecommendation;
+  qualityPrediction: SleepQualityPrediction;
+};
+
+export async function persistCompletedSleep(session: SleepSession): Promise<SleepCompletionResult> {
   await sleepJournal.add(session);
   const history = await getSleepHistory();
   void flushSleepUploads().catch(() => undefined);
@@ -19,5 +25,5 @@ export async function persistCompletedSleep(session: SleepSession): Promise<Dail
   const recommendation = await generateDailyRecommendation({ session, profile, recentSessions: history, language });
   await AsyncStorage.setItem('dailyRecommendation', JSON.stringify(recommendation));
 
-  return recommendation;
+  return { recommendation, qualityPrediction: predictSleepQuality(session, profile) };
 }
