@@ -1,5 +1,4 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
 import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
@@ -7,9 +6,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useLanguage } from '../../theme/LanguageContext';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -30,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Sleep History',
+          title: t('tabHistory'),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="person.crop.circle.fill" color={color} />
           ),
@@ -41,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="sleep"
         options={{
-          title: 'Track Sleep',
+          title: t('tabSleep'),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="moon.fill" color={color} />
           ),
@@ -52,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="setting"
         options={{
-          title: 'Profile',
+          title: t('tabProfile'),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="gearshape.fill" color={color} />
           ),
@@ -60,9 +61,16 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="health"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
         name="recommendation"
         options={{
-          title: 'Recommendation',
+          title: t('tabRecommendation'),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="lightbulb.fill" color={color} />
           ),

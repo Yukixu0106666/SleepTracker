@@ -1,58 +1,49 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { deleteSleepSession, getSleepHistory } from '../services/sleepSync';
+import type { StoredSession } from '../services/sleepJournal';
+import { useFocusEffect } from '@react-navigation/native';
 import { format } from 'date-fns';
-import { BlurView } from 'expo-blur';
-import * as Localization from 'expo-localization';
-import React, { useEffect, useState } from 'react';
+import { zhCN } from 'date-fns/locale';
+import { Stack } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useThemeContext } from '../theme/ThemeContext'; // adjust path if needed
-
-interface SleepSession {
-  start: string;
-  end: string;
-  duration: number;
-}
+import { useLanguage } from '../theme/LanguageContext';
 
 export default function HistoryScreen() {
-  const [history, setHistory] = useState<SleepSession[]>([]);
-  const timeZoneLabel = Localization.timezone.split('/').pop()?.replace('_', ' ') || 'Local Time';
+  const [history, setHistory] = useState<StoredSession[]>([]);
   const { theme } = useThemeContext();
+  const { language, t } = useLanguage();
   const isDark = theme === 'dark';
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     loadHistory();
-  }, []);
+  }, []));
 
   const loadHistory = async () => {
     try {
-      const data = await AsyncStorage.getItem('sleepHistory');
-      if (data) {
-        const parsed = JSON.parse(data);
-        setHistory(parsed);
-      }
+      setHistory(await getSleepHistory());
     } catch (err) {
       console.error('Failed to load sleep history:', err);
     }
   };
 
   const deleteSession = (index: number) => {
-    Alert.alert('Ready to delete?', 'Do you want to delete this sleep session?', [
-      { text: 'No', style: 'cancel' },
+    Alert.alert(t('deleteConfirmTitle'), t('deleteConfirmBody'), [
+      { text: t('no'), style: 'cancel' },
       {
-        text: 'Yes',
+        text: t('yes'),
         style: 'destructive',
         onPress: async () => {
           try {
-            const updated = [...history];
-            updated.splice(index, 1);
-            setHistory(updated);
-            await AsyncStorage.setItem('sleepHistory', JSON.stringify(updated));
+            await deleteSleepSession(history[index].sessionId);
+            setHistory(await getSleepHistory());
           } catch (err) {
             console.error('Error deleting session:', err);
           }
@@ -63,38 +54,37 @@ export default function HistoryScreen() {
 
   const formatDateTime = (iso: string) => {
     const date = new Date(iso);
-    return format(date, "MMM dd, yyyy 'at' hh:mm a");
+    return language === 'zh'
+      ? format(date, 'yyyy年MM月dd日 HH:mm', { locale: zhCN })
+      : format(date, "MMM dd, yyyy 'at' hh:mm a");
   };
 
   return (
     <ScrollView contentContainerStyle={[styles.container, isDark && styles.containerDark]}>
-      <Text style={[styles.header, isDark && styles.textLight]}>🕒 Sleep History</Text>
+      <Stack.Screen options={{ title: t('tabHistory'), headerBackTitle: t('back') }} />
+      <Text style={[styles.header, isDark && styles.textLight]}>{t('tabHistory')}</Text>
       {history.length === 0 ? (
-        <Text style={[styles.text, isDark && styles.textLight]}>No sleep data recorded.</Text>
+        <Text style={[styles.text, isDark && styles.textLight]}>{t('noSleepData')}</Text>
       ) : (
         history.map((session, index) => (
-          <View key={index} style={[styles.card, isDark && styles.cardDark]}>
+          <View key={session.sessionId} style={[styles.card, isDark && styles.cardDark]}>
             <Text style={[styles.sessionTitle, isDark && styles.sessionTitleDark]}>
-              📍 Session {index + 1}
+              {language === 'zh' ? `第 ${index + 1} 次睡眠` : `${t('session')} ${index + 1}`}
             </Text>
             <Text style={[styles.text, isDark && styles.textLight]}>
-              Start: {formatDateTime(session.start)} ({timeZoneLabel})
+              {t('start')}: {formatDateTime(session.start)}
             </Text>
             <Text style={[styles.text, isDark && styles.textLight]}>
-              End: {formatDateTime(session.end)} ({timeZoneLabel})
+              {t('end')}: {formatDateTime(session.end)}
             </Text>
             <Text style={[styles.text, isDark && styles.textLight]}>
-              Duration: {session.duration.toFixed(2)} hrs
+              {t('duration')}: {session.duration.toFixed(2)} {t('hours')}
             </Text>
             <TouchableOpacity
               onPress={() => deleteSession(index)}
               style={styles.deleteWrapper}
             >
-              <BlurView intensity={30} tint="light" style={styles.blur}>
-                <Text style={[styles.deleteText, isDark ? styles.deleteTextDark : styles.deleteTextLight]}>
-                🗑️ Delete
-                </Text>
-              </BlurView>
+              <Text style={styles.deleteText}>{t('delete')}</Text>
             </TouchableOpacity>
           </View>
         ))
@@ -146,22 +136,15 @@ const styles = StyleSheet.create({
   },
   deleteWrapper: {
     alignSelf: 'flex-start',
+    backgroundColor: '#176C89',
     marginTop: 8,
     borderRadius: 8,
     overflow: 'hidden',
-  },
-  blur: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
   },
-    deleteText: {
-    fontWeight: '600',
-  },
-  deleteTextLight: {
-    color: '#000',
-  },
-  deleteTextDark: {
+  deleteText: {
     color: '#fff',
+    fontWeight: '600',
   },
 });

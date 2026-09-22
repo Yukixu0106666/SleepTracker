@@ -9,14 +9,26 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "SleepTracker 需要读取您的心率数据，以提供更准确的睡眠分析和健康建议。",
+        "NSHealthUpdateUsageDescription": "SleepTracker 需要访问健康数据，以便在未来的版本中支持更智能的健康功能。"
+      },
+      "bundleIdentifier": "com.anonymous.SleepTracker"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "BODY_SENSORS",
+        "ACTIVITY_RECOGNITION",
+        "BODY_SENSORS",
+        "ACTIVITY_RECOGNITION"
+      ],
+      "package": "com.anonymous.SleepTracker"
     },
     "web": {
       "bundler": "metro",
@@ -34,7 +46,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-dev-client",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "SleepTracker reads your heart-rate and sleep data to show your recent health summary.",
+          "NSHealthUpdateUsageDescription": "SleepTracker can save sleep data only when you choose to add it."
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

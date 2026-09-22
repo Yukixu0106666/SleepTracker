@@ -2,6 +2,11 @@
 
 # dependencies
 node_modules/
+.analysis-deps/
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
 
 # Expo
 .expo/
@@ -11,6 +16,10 @@ expo-env.d.ts
 
 # Native
 .kotlin/
+ios/Pods/
+ios/build/
+ios/.derivedData*/
+*.xcarchive/
 *.orig.*
 *.jks
 *.p8
@@ -31,9 +40,17 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+.env.server
+.env.ingestion
+.local/
 
 # typescript
 *.tsbuildinfo
 
 app-example
+
+# Local data engineering artifacts
+data-platform/output/
+data-platform/**/__pycache__/
