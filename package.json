@@ -18,6 +18,8 @@
     "db:credential": "npm --prefix server run credential --",
     "test:ingestion": "npm --prefix server test",
     "test:sync": "node --experimental-strip-types --test tests/sleepJournal.test.mjs",
+    "test:model": "node --experimental-strip-types --test tests/sleepQualityModel.test.mjs",
+    "model:mobile": "PYTHONPATH=\"$PWD/.analysis-deps\" python3 mobile_sleep_quality_model.py",
     "db:local": "bash scripts/local-postgres.sh start",
     "db:local:stop": "bash scripts/local-postgres.sh stop"
   },
