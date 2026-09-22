@@ -1,8 +1,10 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import { getSleepHistory } from '../services/sleepSync';
+import { Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { useThemeContext } from '../theme/ThemeContext';
+import { useLanguage } from '../theme/LanguageContext';
 
 interface SleepEntry {
   date: string;
@@ -12,22 +14,23 @@ interface SleepEntry {
 export default function StatsScreen() {
   const [sleepData, setSleepData] = useState<SleepEntry[]>([]);
   const { theme } = useThemeContext();
+  const { language, t } = useLanguage();
   const isDark = theme === 'dark';
 
   useEffect(() => {
     const loadSleepData = async () => {
       try {
-        const data = await AsyncStorage.getItem('sleepHistory');
-        if (data) {
-          const parsed = JSON.parse(data);
+        const parsed = await getSleepHistory();
+        if (parsed.length) {
           const grouped: Record<string, number> = {};
 
           parsed.forEach((s: any) => {
-            const dateKey = new Date(s.end).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
+            const endDate = new Date(s.end);
+            const dateKey = [
+              endDate.getFullYear(),
+              String(endDate.getMonth() + 1).padStart(2, '0'),
+              String(endDate.getDate()).padStart(2, '0'),
+            ].join('-');
             grouped[dateKey] = (grouped[dateKey] || 0) + s.duration;
           });
 
@@ -66,15 +69,21 @@ export default function StatsScreen() {
       sleepData[0] || { date: '', duration: 0 }
     );
 
+  const formatChartDate = (date: string) => new Date(`${date}T00:00:00`).toLocaleDateString(
+    language === 'zh' ? 'zh-CN' : 'en-US',
+    { month: 'short', day: 'numeric' }
+  );
+
   return (
     <ScrollView contentContainerStyle={[styles.container, isDark && styles.containerDark]}>
-      <Text style={[styles.title, isDark && styles.titleDark]}>🛏️ Your Sleep in the Past Week</Text>
+      <Stack.Screen options={{ title: t('statsTitle'), headerBackTitle: t('back') }} />
+      <Text style={[styles.title, isDark && styles.titleDark]}>{t('weeklySleep')}</Text>
 
       {sleepData.length > 0 ? (
         <>
           <LineChart
             data={{
-              labels: sleepData.map((d) => d.date),
+              labels: sleepData.map((d) => formatChartDate(d.date)),
               datasets: [{ data: sleepData.map((d) => d.duration) }],
             }}
             width={Dimensions.get('window').width - 40}
@@ -102,27 +111,27 @@ export default function StatsScreen() {
           />
 
           <View style={[styles.summary, isDark && styles.summaryDark]}>
-            <Text style={[styles.text, isDark && styles.textDark]}>📊 Average Sleep: {averageSleep.toFixed(2)} hrs</Text>
+            <Text style={[styles.text, isDark && styles.textDark]}>{t('averageSleep')}: {averageSleep.toFixed(2)} {t('hours')}</Text>
             <Text style={[styles.text, isDark && styles.textDark]}>
-              🏆 Best Day: {bestDay.date} ({bestDay.duration} hrs)
+              {t('bestDay')}: {formatChartDate(bestDay.date)} ({bestDay.duration} {t('hours')})
             </Text>
             <Text style={[styles.text, isDark && styles.textDark]}>
-              😴 Worst Day: {worstDay.date} ({worstDay.duration} hrs)
+              {t('worstDay')}: {formatChartDate(worstDay.date)} ({worstDay.duration} {t('hours')})
             </Text>
 
             {averageSleep >= 7 ? (
               <Text style={[styles.text, { color: '#5cb85c' }]}>
-                ✅ You're getting enough rest! Keep it up!
+                {t('enoughRest')}
               </Text>
             ) : (
               <Text style={[styles.text, { color: '#f0ad4e' }]}>
-                ⚠️ Try to aim for 7–9 hours of sleep daily!
+                {t('aimForSleep')}
               </Text>
             )}
           </View>
         </>
       ) : (
-        <Text style={[styles.text, isDark && styles.textDark]}>No sleep data to show yet.</Text>
+        <Text style={[styles.text, isDark && styles.textDark]}>{t('noStats')}</Text>
       )}
     </ScrollView>
   );

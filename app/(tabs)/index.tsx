@@ -1,34 +1,39 @@
 import { Link } from 'expo-router';
-import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeContext } from '../../theme/ThemeContext';
+import { useLanguage } from '../../theme/LanguageContext';
 
 export default function HomeScreen() {
   const { theme } = useThemeContext();
+  const { t } = useLanguage();
   const isDark = theme === 'dark';
 
   return (
     <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
-      {/* Title row with emoji */}
       <View style={styles.titleRow}>
-        <Text style={[styles.titleText, isDark && styles.titleTextDark]}>Sleep Tracker</Text>
-        <Text style={styles.emoji}>😴</Text>
+        <Text style={[styles.titleText, isDark && styles.titleTextDark]}>{t('appName')}</Text>
       </View>
 
       <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-        Track your sleep sessions and rest better.
+        {t('homeSubtitle')}
       </Text>
 
       <Link href="/history" asChild>
         <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>🕒 View Sleep History</Text>
+          <Text style={styles.buttonText}>{t('viewHistory')}</Text>
         </Pressable>
       </Link>
 
       <Link href="/stats" asChild>
         <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>📊 View Stats</Text>
+          <Text style={styles.buttonText}>{t('viewStats')}</Text>
+        </Pressable>
+      </Link>
+
+      <Link href="/(tabs)/health" asChild>
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>{t('appleHealth')}</Text>
         </Pressable>
       </Link>
     </SafeAreaView>
@@ -60,10 +65,6 @@ const styles = StyleSheet.create({
   titleTextDark: {
     color: '#FFFFFF',
   },
-  emoji: {
-    fontSize: 32,
-    marginLeft: 8,
-  },
   subtitle: {
     fontSize: 16,
     color: '#333',
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     color: '#AAB8CC',
   },
   button: {
-    backgroundColor: '#3C6EB4',
+    backgroundColor: '#176C89',
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,

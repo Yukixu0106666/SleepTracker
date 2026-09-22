@@ -1,19 +1,21 @@
+import { SleepSyncSettings } from '../../components/SleepSyncSettings';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useThemeContext } from '../../theme/ThemeContext';
+import { useLanguage } from '../../theme/LanguageContext';
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
@@ -24,6 +26,7 @@ export default function SettingsScreen() {
   const [savedProfile, setSavedProfile] = useState<any>(null);
 
   const { theme, toggleTheme } = useThemeContext();
+  const { language, setLanguage, t } = useLanguage();
   const isDark = theme === 'dark';
 
   useEffect(() => {
@@ -44,20 +47,20 @@ export default function SettingsScreen() {
 
   const saveProfile = async () => {
     if (!name || !age || isNaN(parseInt(age))) {
-      Alert.alert('Please enter a valid name and numeric age.');
+      Alert.alert(t('validProfile'));
       return;
     }
 
     const profile = { name, age, height, weight, photo };
     await AsyncStorage.setItem('userProfile', JSON.stringify(profile));
     setSavedProfile(profile);
-    Alert.alert('Profile saved!');
+    Alert.alert(t('profileSaved'));
   };
 
   const handleChoosePhoto = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permission to access media library is required.');
+      Alert.alert(t('mediaPermission'));
       return;
     }
 
@@ -76,7 +79,7 @@ export default function SettingsScreen() {
   const handleTakePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permission to access camera is required.');
+      Alert.alert(t('cameraPermission'));
       return;
     }
 
@@ -98,39 +101,52 @@ export default function SettingsScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.scrollContainer, isDark && styles.scrollContainerDark]}>
       <View style={styles.innerContainer}>
-        <Text style={[styles.title, isDark && styles.titleDark]}>Settings</Text>
+        <Text style={[styles.title, isDark && styles.titleDark]}>{t('settings')}</Text>
 
         <View style={styles.photoActions}>
-          <TouchableOpacity onPress={handleChoosePhoto}>
+          <Text style={[styles.photoLabel, isDark && styles.titleDark]}>{t('profilePhoto')}</Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={photo ? t('changePhoto') : t('uploadPhoto')}
+            onPress={handleChoosePhoto}
+            style={[styles.photoPicker, isDark && styles.photoPickerDark]}
+          >
             {photo ? (
               <Image source={{ uri: photo }} style={styles.profilePhoto} />
             ) : (
-              <View style={styles.placeholderCircle}>
-                <Ionicons name="camera-outline" size={36} color="#888" />
+              <>
+                <Ionicons name="camera-outline" size={34} color={isDark ? '#9CC7D8' : '#176C89'} />
+                <Text style={[styles.uploadPhotoText, isDark && styles.uploadPhotoTextDark]}>{t('upload')}</Text>
+              </>
+            )}
+            {photo && (
+              <View style={styles.changePhotoBadge}>
+                <Ionicons name="camera" size={16} color="#fff" />
               </View>
             )}
           </TouchableOpacity>
+          <Text style={[styles.photoHint, isDark && styles.photoHintDark]}>{t('tapToUpload')}</Text>
 
           <View style={styles.photoButtons}>
             <Pressable style={styles.smallButton} onPress={handleTakePhoto}>
-              <Text style={styles.smallButtonText}>📷 Take Photo</Text>
+              <Text style={styles.smallButtonText}>{t('takePhoto')}</Text>
             </Pressable>
             <Pressable style={styles.smallButton} onPress={handleDeletePhoto}>
-              <Text style={styles.smallButtonText}>❌ Delete</Text>
+              <Text style={styles.smallButtonText}>{t('delete')}</Text>
             </Pressable>
           </View>
         </View>
 
         <TextInput
           style={[styles.input, isDark && styles.inputDark]}
-          placeholder="Name"
+          placeholder={t('name')}
           placeholderTextColor={isDark ? '#aaa' : undefined}
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={[styles.input, isDark && styles.inputDark]}
-          placeholder="Age"
+          placeholder={t('age')}
           placeholderTextColor={isDark ? '#aaa' : undefined}
           value={age}
           onChangeText={setAge}
@@ -138,7 +154,7 @@ export default function SettingsScreen() {
         />
         <TextInput
           style={[styles.input, isDark && styles.inputDark]}
-          placeholder="Height (cm)"
+          placeholder={t('height')}
           placeholderTextColor={isDark ? '#aaa' : undefined}
           value={height}
           onChangeText={setHeight}
@@ -146,7 +162,7 @@ export default function SettingsScreen() {
         />
         <TextInput
           style={[styles.input, isDark && styles.inputDark]}
-          placeholder="Weight (kg)"
+          placeholder={t('weight')}
           placeholderTextColor={isDark ? '#aaa' : undefined}
           value={weight}
           onChangeText={setWeight}
@@ -154,20 +170,41 @@ export default function SettingsScreen() {
         />
 
         <Pressable style={styles.saveButton} onPress={saveProfile}>
-          <Text style={styles.saveButtonText}>💾 Save Profile</Text>
+          <Text style={styles.saveButtonText}>{t('saveProfile')}</Text>
         </Pressable>
 
+        <View style={[styles.languageSection, isDark && styles.languageSectionDark]}>
+          <Text style={[styles.languageLabel, isDark && styles.titleDark]}>{t('language')}</Text>
+          <View style={styles.languageOptions}>
+            {(['en', 'zh'] as const).map((option) => (
+              <Pressable
+                key={option}
+                accessibilityRole="button"
+                accessibilityState={{ selected: language === option }}
+                onPress={() => setLanguage(option)}
+                style={[styles.languageOption, language === option && styles.languageOptionSelected]}
+              >
+                <Text style={[styles.languageOptionText, language === option && styles.languageOptionTextSelected]}>
+                  {option === 'en' ? t('english') : t('chinese')}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
         <Pressable style={styles.toggleButton} onPress={toggleTheme}>
-          <Text style={styles.saveButtonText}>🌓 Toggle Theme</Text>
+          <Text style={styles.saveButtonText}>{t('toggleTheme')}</Text>
         </Pressable>
+
+        <SleepSyncSettings />
 
         {savedProfile && (
           <View style={[styles.profileSection, isDark && styles.profileSectionDark]}>
-            <Text style={[styles.profileHeader, isDark && styles.titleDark]}>Your Profile:</Text>
-            <Text style={[styles.profileText, isDark && styles.titleDark]}>Name: {savedProfile.name}</Text>
-            <Text style={[styles.profileText, isDark && styles.titleDark]}>Age: {savedProfile.age}</Text>
-            <Text style={[styles.profileText, isDark && styles.titleDark]}>Height: {savedProfile.height} cm</Text>
-            <Text style={[styles.profileText, isDark && styles.titleDark]}>Weight: {savedProfile.weight} kg</Text>
+            <Text style={[styles.profileHeader, isDark && styles.titleDark]}>{t('yourProfile')}</Text>
+            <Text style={[styles.profileText, isDark && styles.titleDark]}>{t('name')}: {savedProfile.name}</Text>
+            <Text style={[styles.profileText, isDark && styles.titleDark]}>{t('age')}: {savedProfile.age}</Text>
+            <Text style={[styles.profileText, isDark && styles.titleDark]}>{t('height')}: {savedProfile.height} cm</Text>
+            <Text style={[styles.profileText, isDark && styles.titleDark]}>{t('weight')}: {savedProfile.weight} kg</Text>
           </View>
         )}
       </View>
@@ -217,7 +254,7 @@ const styles = StyleSheet.create({
     borderColor: '#444',
   },
   saveButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#176C89',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -225,11 +262,50 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   toggleButton: {
-    backgroundColor: '#6B7280',
+    backgroundColor: '#176C89',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
+  },
+  languageSection: {
+    backgroundColor: '#F1F7F9',
+    borderRadius: 8,
+    marginBottom: 20,
+    padding: 14,
+  },
+  languageSectionDark: {
+    backgroundColor: '#1E293B',
+  },
+  languageLabel: {
+    color: '#123044',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  languageOptions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  languageOption: {
+    alignItems: 'center',
+    borderColor: '#A8C8D3',
+    borderRadius: 6,
+    borderWidth: 1,
+    flex: 1,
+    paddingVertical: 10,
+  },
+  languageOptionSelected: {
+    backgroundColor: '#176C89',
+    borderColor: '#176C89',
+  },
+  languageOptionText: {
+    color: '#176C89',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  languageOptionTextSelected: {
+    color: '#fff',
   },
   saveButtonText: {
     color: '#fff',
@@ -257,21 +333,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  photoLabel: {
+    color: '#123044',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  photoPicker: {
+    alignItems: 'center',
+    backgroundColor: '#E9F4F7',
+    borderColor: '#176C89',
+    borderRadius: 64,
+    borderStyle: 'dashed',
+    borderWidth: 2,
+    height: 128,
+    justifyContent: 'center',
+    overflow: 'visible',
+    width: 128,
+  },
+  photoPickerDark: {
+    backgroundColor: '#17364B',
+    borderColor: '#9CC7D8',
+  },
   profilePhoto: {
     width: 120,
     height: 120,
     borderRadius: 60,
     resizeMode: 'cover',
   },
-  placeholderCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: '#ccc',
-    justifyContent: 'center',
+  uploadPhotoText: {
+    color: '#176C89',
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  uploadPhotoTextDark: {
+    color: '#9CC7D8',
+  },
+  changePhotoBadge: {
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#176C89',
+    borderColor: '#fff',
+    borderRadius: 17,
+    borderWidth: 2,
+    bottom: -2,
+    height: 34,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -2,
+    width: 34,
+  },
+  photoHint: {
+    color: '#53707D',
+    fontSize: 13,
+    marginTop: 9,
+  },
+  photoHintDark: {
+    color: '#9CC7D8',
   },
   photoButtons: {
     flexDirection: 'row',
@@ -279,7 +397,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   smallButton: {
-    backgroundColor: '#64748B',
+    backgroundColor: '#176C89',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 6,
