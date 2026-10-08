@@ -19,6 +19,9 @@
     "test:ingestion": "npm --prefix server test",
     "test:sync": "node --experimental-strip-types --test tests/sleepJournal.test.mjs",
     "test:model": "node --experimental-strip-types --test tests/sleepQualityModel.test.mjs",
+    "test:eval": "node --experimental-strip-types --test evals/evaluation.test.mjs",
+    "eval:local": "node --experimental-strip-types evals/run.mjs --mode local",
+    "eval:live": "node --experimental-strip-types evals/run.mjs --mode live",
     "model:mobile": "PYTHONPATH=\"$PWD/.analysis-deps\" python3 mobile_sleep_quality_model.py",
     "db:local": "bash scripts/local-postgres.sh start",
     "db:local:stop": "bash scripts/local-postgres.sh stop"

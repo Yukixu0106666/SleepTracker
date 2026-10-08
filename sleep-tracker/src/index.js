@@ -4,31 +4,31 @@ const SYSTEM_PROMPT = `你是一个睡眠健康助手。你的核心目标不是
 - 语气温和、安抚，像朋友一样
 - 不使用"失眠症"等制造焦虑的诊断性词汇
 - 不给具体医学建议（药物、剂量）
+- 如果最近一次睡眠少于7小时，必须明确提醒：感到困倦时不要驾驶或操作危险设备。使用请求指定的输出语言表达
+- 只能调用请求中提供的工具，绝不能创建或调用名为 json、JSON 或其他未列出的工具
 - 只输出严格符合下面 schema 的 JSON，不要有任何其他文字、不要用markdown代码块包裹
 
-严格按此 JSON schema 输出（字段名、类型、数组长度要求必须精确遵守）：
+foodPlan 必须有2至4项；warmUp、workout、coolDown 必须各有至少1项。严格按以下有效 JSON 结构输出：
 {
-  "headline": "string，一句安抚性的开场话",
+  "headline": "string",
   "foodPlan": [
-    {"timing": "string，如 Breakfast", "meal": "string，具体吃什么", "portion": "string，具体分量"}
-  ]，// 至少2条，最多4条
+    {"timing": "string", "meal": "string", "portion": "string"}
+  ],
   "movementPlan": {
-    "activity": "string，活动名称",
+    "activity": "string",
     "durationMinutes": number,
-    "intensity": "string，强度描述",
-    "timing": "string，什么时候做",
+    "intensity": "string",
+    "timing": "string",
     "warmUp": [{"name": "string", "durationMinutes": number, "instruction": "string"}],
     "workout": [{"name": "string", "durationMinutes": number, "instruction": "string"}],
     "coolDown": [{"name": "string", "durationMinutes": number, "instruction": "string"}],
-    "lowerEnergyAlternative": "string，精力不足时的替代方案"
+    "lowerEnergyAlternative": "string"
   },
-  "mindset": "string，2-3句安抚性的心态建议",
-  "tonight": "string，今晚睡眠的建议"
+  "mindset": "string",
+  "tonight": "string"
 }
 
 输出语言由请求中的 language 字段决定。`;
-
-const MAX_TOOL_ROUNDS = 3;
 
 const SLEEP_TIPS = {
   caffeine: 'If you use caffeine, keep it earlier in the day and switch to water or decaf later on.',
@@ -37,7 +37,7 @@ const SLEEP_TIPS = {
   default: 'Focus on a calm wind-down routine, regular meals, daylight, and gentle activity that matches your energy.',
 };
 
-const TOOLS = [
+export const TOOLS = [
   {
     type: 'function',
     function: {
@@ -142,8 +142,7 @@ function buildUserPrompt(session, profile, recentSessions) {
     if (bits.length) lines.push(`User profile: ${bits.join(', ')}.`);
   }
   if (recentSessions && recentSessions.length) {
-    const avg = recentSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / recentSessions.length;
-    lines.push(`Past ${recentSessions.length} nights average duration: ${avg.toFixed(1)} hours.`);
+    lines.push(`${recentSessions.length} recent sleep sessions are available through tools. Use get_average_stats before generating the recommendation.`);
   }
 
   lines.push('Generate today\'s recommendation as strict JSON matching the schema.');
@@ -160,7 +159,7 @@ async function callGroq(messages, env, options = {}) {
     body: JSON.stringify({
       model: env.GROQ_MODEL || 'llama-3.3-70b-versatile',
       messages,
-      temperature: 0.7,
+      temperature: 0.2,
       ...options,
     }),
   });
@@ -168,10 +167,135 @@ async function callGroq(messages, env, options = {}) {
   if (!response.ok) throw new Error(`Groq API error: ${data.error?.message || response.status}`);
   const message = data.choices?.[0]?.message;
   if (!message) throw new Error('Groq returned no response message.');
-  return message;
+  return { message, usage: data.usage ?? null, model: data.model ?? env.GROQ_MODEL ?? null };
 }
 
-async function generateWithTools(context, env) {
+function nonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function unexpectedKeys(value, allowed, path, issues) {
+  for (const key of Object.keys(value)) {
+    if (!allowed.includes(key)) issues.push(`${path}.${key} is not allowed`);
+  }
+}
+
+function validateSteps(value, path, issues) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 6) {
+    issues.push(`${path} must contain 1 to 6 steps`);
+    return;
+  }
+  value.forEach((step, index) => {
+    const stepPath = `${path}[${index}]`;
+    if (!step || typeof step !== 'object' || Array.isArray(step)) {
+      issues.push(`${stepPath} must be an object`);
+      return;
+    }
+    unexpectedKeys(step, ['name', 'durationMinutes', 'instruction'], stepPath, issues);
+    if (!nonEmptyString(step.name)) issues.push(`${stepPath}.name must be a non-empty string`);
+    if (!Number.isFinite(step.durationMinutes) || step.durationMinutes <= 0 || step.durationMinutes > 60) {
+      issues.push(`${stepPath}.durationMinutes must be between 0 and 60`);
+    }
+    if (!nonEmptyString(step.instruction)) issues.push(`${stepPath}.instruction must be a non-empty string`);
+  });
+}
+
+export function recommendationIssues(value) {
+  const issues = [];
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return ['recommendation must be an object'];
+
+  unexpectedKeys(value, [
+    'headline', 'foodPlan', 'movementPlan', 'mindset', 'tonight',
+    'source', 'fallbackReason', 'createdAt', 'language', 'promptVersion',
+  ], 'recommendation', issues);
+  for (const field of ['headline', 'mindset', 'tonight']) {
+    if (!nonEmptyString(value[field])) issues.push(`${field} must be a non-empty string`);
+  }
+
+  if (!Array.isArray(value.foodPlan) || value.foodPlan.length < 2 || value.foodPlan.length > 4) {
+    issues.push('foodPlan must contain 2 to 4 items');
+  } else {
+    value.foodPlan.forEach((item, index) => {
+      const path = `foodPlan[${index}]`;
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        issues.push(`${path} must be an object`);
+        return;
+      }
+      unexpectedKeys(item, ['timing', 'meal', 'portion'], path, issues);
+      for (const field of ['timing', 'meal', 'portion']) {
+        if (!nonEmptyString(item[field])) issues.push(`${path}.${field} must be a non-empty string`);
+      }
+    });
+  }
+
+  const movement = value.movementPlan;
+  if (!movement || typeof movement !== 'object' || Array.isArray(movement)) {
+    issues.push('movementPlan must be an object');
+  } else {
+    unexpectedKeys(movement, [
+      'activity', 'durationMinutes', 'intensity', 'timing',
+      'warmUp', 'workout', 'coolDown', 'lowerEnergyAlternative',
+    ], 'movementPlan', issues);
+    for (const field of ['activity', 'intensity', 'timing', 'lowerEnergyAlternative']) {
+      if (!nonEmptyString(movement[field])) issues.push(`movementPlan.${field} must be a non-empty string`);
+    }
+    if (!Number.isFinite(movement.durationMinutes) || movement.durationMinutes <= 0 || movement.durationMinutes > 180) {
+      issues.push('movementPlan.durationMinutes must be between 0 and 180');
+    }
+    validateSteps(movement.warmUp, 'movementPlan.warmUp', issues);
+    validateSteps(movement.workout, 'movementPlan.workout', issues);
+    validateSteps(movement.coolDown, 'movementPlan.coolDown', issues);
+  }
+  return issues;
+}
+
+function parseRecommendation(content) {
+  const recommendation = JSON.parse(content || '');
+  const issues = recommendationIssues(recommendation);
+  if (issues.length) throw new Error(`Invalid recommendation: ${issues.join('; ')}`);
+  return recommendation;
+}
+
+function enforceSafetyRequirements(recommendation, context, runtime) {
+  if (!(Number(context.session?.duration) < 7)) return recommendation;
+  const text = `${recommendation.movementPlan.lowerEnergyAlternative} ${recommendation.tonight}`;
+  const hasExplicitDrivingWarning = context.language === 'zh'
+    ? /(?:不要|避免).{0,8}(?:驾驶|开车)/u.test(text)
+    : /(?:do not drive|avoid driving|driving while drowsy)/iu.test(text);
+  if (hasExplicitDrivingWarning) return recommendation;
+
+  const warning = context.language === 'zh'
+    ? '感到困倦时不要驾驶或操作危险设备。'
+    : 'Do not drive or operate dangerous equipment while drowsy.';
+  runtime.onSafetyRepair?.({ rule: 'drowsy-driving', warning });
+  return {
+    ...recommendation,
+    movementPlan: {
+      ...recommendation.movementPlan,
+      lowerEnergyAlternative: `${recommendation.movementPlan.lowerEnergyAlternative} ${warning}`,
+    },
+  };
+}
+
+async function invokeModel(callModel, messages, env, options, runtime, round) {
+  const startedAt = Date.now();
+  const response = await callModel(messages, env, options);
+  const wrapped = response && typeof response === 'object' && response.message
+    ? response
+    : { message: response, usage: null, model: env.GROQ_MODEL ?? null };
+  if (!wrapped.message || typeof wrapped.message !== 'object') throw new Error('Model returned no response message.');
+  runtime.onModelCall?.({
+    round,
+    durationMs: Date.now() - startedAt,
+    toolChoice: options.tool_choice,
+    usage: wrapped.usage ?? null,
+    model: wrapped.model ?? null,
+  });
+  return wrapped.message;
+}
+
+export async function generateWithTools(context, env, runtime = {}) {
+  const callModel = runtime.callModel ?? callGroq;
   const outputLanguageInstruction = context.language === 'zh'
     ? '所有面向用户的字段值必须使用自然、地道的简体中文（中国大陆）。不要逐字翻译英文，也不要夹杂英文；请使用日常、温和、清楚的中文表达。JSON 字段名必须保持 schema 中的英文名称。'
     : 'All text content must be in English.';
@@ -180,22 +304,26 @@ async function generateWithTools(context, env) {
     { role: 'user', content: buildUserPrompt(context.session, context.profile, context.recentSessions) },
   ];
 
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
-    const message = await callGroq(messages, env, { tools: TOOLS, tool_choice: 'auto' });
-    messages.push(message);
-
-    if (!message.tool_calls?.length) {
-      return JSON.parse(message.content || '');
-    }
-
-    for (const toolCall of message.tool_calls) {
+  const recentSessions = asRecentSessions(context.recentSessions);
+  if (recentSessions.length) {
+    const requiredStatsTool = { type: 'function', function: { name: 'get_average_stats' } };
+    const toolMessage = await invokeModel(
+      callModel, messages, env, { tools: TOOLS, tool_choice: requiredStatsTool }, runtime, 0,
+    );
+    messages.push(toolMessage);
+    if (!toolMessage.tool_calls?.length) throw new Error('Model did not call the required sleep statistics tool.');
+    for (const toolCall of toolMessage.tool_calls) {
       const result = executeTool(toolCall.function.name, toolCall.function.arguments, context);
+      runtime.onToolCall?.({ round: 0, name: toolCall.function.name, arguments: toolCall.function.arguments, result });
       messages.push({ role: 'tool', tool_call_id: toolCall.id, content: JSON.stringify(result) });
     }
   }
 
-  const finalMessage = await callGroq(messages, env, { tool_choice: 'none', response_format: { type: 'json_object' } });
-  return JSON.parse(finalMessage.content || '');
+  const finalMessage = await invokeModel(
+    callModel, messages, env, { tool_choice: 'none', response_format: { type: 'json_object' } },
+    runtime, recentSessions.length ? 1 : 0,
+  );
+  return enforceSafetyRequirements(parseRecommendation(finalMessage.content), context, runtime);
 }
 
 function landingPage() {
