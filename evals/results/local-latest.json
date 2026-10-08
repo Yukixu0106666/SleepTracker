@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 1,
+  "evalSet": "sleep-recommendation-v1",
+  "mode": "local",
+  "model": "deterministic-local-fallback",
+  "pricingUsdPerMillionTokens": null,
+  "execution": {
+    "delayMs": 0,
+    "maxRateLimitRetries": 0
+  },
+  "generatedAt": "2026-10-08T02:51:19.968Z",
+  "casesPath": "evals/cases.jsonl",
+  "summary": {
+    "cases": 12,
+    "schemaValid": {
+      "passed": 12,
+      "evaluated": 12,
+      "rate": 1
+    },
+    "safetyPass": {
+      "passed": 12,
+      "evaluated": 12,
+      "rate": 1
+    },
+    "languageMatch": {
+      "passed": 12,
+      "evaluated": 12,
+      "rate": 1
+    },
+    "contentRequirementsPass": {
+      "passed": 12,
+      "evaluated": 12,
+      "rate": 1
+    },
+    "toolSelectionPass": {
+      "passed": 0,
+      "evaluated": 0,
+      "rate": null
+    },
+    "toolArgumentsPass": {
+      "passed": 0,
+      "evaluated": 0,
+      "rate": null
+    },
+    "overallPass": {
+      "passed": 12,
+      "evaluated": 12,
+      "rate": 1
+    },
+    "latencyMs": {
+      "p50": 0.07,
+      "p95": 1.15
+    },
+    "usage": {
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0
+    },
+    "estimatedCostUsd": null,
+    "safetyRepairs": 0
+  },
+  "results": [
+    {
+      "id": "en-short-4h",
+      "tags": [
+        "en",
+        "short-sleep",
+        "safety"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 1.15,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "en-short-6h",
+      "tags": [
+        "en",
+        "short-sleep",
+        "safety"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.08,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "en-short-with-history",
+      "tags": [
+        "en",
+        "history",
+        "tools"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.06,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "en-regular-8h",
+      "tags": [
+        "en",
+        "regular-sleep"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.1,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "en-long-9h",
+      "tags": [
+        "en",
+        "long-sleep"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.37,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "en-no-session",
+      "tags": [
+        "en",
+        "missing-data"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.04,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-short-4h",
+      "tags": [
+        "zh",
+        "short-sleep",
+        "safety"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.41,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-short-6h",
+      "tags": [
+        "zh",
+        "short-sleep",
+        "safety"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.13,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-short-with-history",
+      "tags": [
+        "zh",
+        "history",
+        "tools"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.05,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-regular-8h",
+      "tags": [
+        "zh",
+        "regular-sleep"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.04,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-long-9h",
+      "tags": [
+        "zh",
+        "long-sleep"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.07,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    },
+    {
+      "id": "zh-no-session",
+      "tags": [
+        "zh",
+        "missing-data"
+      ],
+      "metrics": {
+        "schemaValid": true,
+        "safetyPass": true,
+        "languageMatch": true,
+        "contentRequirementsPass": true,
+        "toolSelectionPass": null,
+        "toolArgumentsPass": null,
+        "overallPass": true
+      },
+      "issues": {
+        "schema": [],
+        "safety": [],
+        "missingContentRequirement": [],
+        "unexpectedTools": []
+      },
+      "toolCalls": [],
+      "latencyMs": 0.07,
+      "modelCalls": 0,
+      "usage": {
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0
+      },
+      "estimatedCostUsd": null,
+      "safetyRepairs": [],
+      "error": null
+    }
+  ]
+}

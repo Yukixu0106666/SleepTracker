@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "evalSet": "sleep-recommendation-v1",
+  "model": "openai/gpt-oss-20b",
+  "cases": 12,
+  "before": {
+    "overallPass": { "passed": 6, "evaluated": 12, "rate": 0.5 },
+    "schemaValid": { "passed": 10, "evaluated": 12, "rate": 0.8333333333333334 },
+    "safetyPass": { "passed": 10, "evaluated": 10, "rate": 1 },
+    "languageMatch": { "passed": 10, "evaluated": 10, "rate": 1 },
+    "contentRequirementsPass": { "passed": 6, "evaluated": 10, "rate": 0.6 },
+    "toolSelectionPass": { "passed": 11, "evaluated": 12, "rate": 0.9166666666666666 },
+    "toolArgumentsPass": { "passed": 1, "evaluated": 1, "rate": 1 },
+    "latencyMs": { "p50": 1479.79, "p95": 3577.04 },
+    "usage": { "promptTokens": 12450, "completionTokens": 9769, "totalTokens": 22219 },
+    "estimatedCostUsd": 0.00386445
+  },
+  "after": {
+    "generatedAt": "2026-10-08T02:54:42.970Z",
+    "overallPass": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "schemaValid": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "safetyPass": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "languageMatch": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "contentRequirementsPass": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "toolSelectionPass": { "passed": 12, "evaluated": 12, "rate": 1 },
+    "toolArgumentsPass": { "passed": 2, "evaluated": 2, "rate": 1 },
+    "latencyMs": { "p50": 1246.54, "p95": 2121.24 },
+    "usage": { "promptTokens": 9479, "completionTokens": 10612, "totalTokens": 20091 },
+    "estimatedCostUsd": 0.00389452,
+    "safetyRepairs": 6
+  },
+  "changes": [
+    "Replaced the invalid schema example in the system prompt with valid JSON.",
+    "Forced get_average_stats when request-scoped sleep history is available.",
+    "Separated tool collection from the final JSON-only generation step.",
+    "Added an explicit short-sleep drowsy-driving instruction.",
+    "Added a deterministic drowsy-driving safety repair and trace hook."
+  ],
+  "notes": [
+    "Inputs are synthetic and results are development evaluations, not clinical validation.",
+    "The full live report is intentionally gitignored because it contains model-generated text.",
+    "Cost uses Groq prices supplied to the runner: USD 0.075/M input tokens and USD 0.30/M output tokens."
+  ]
+}

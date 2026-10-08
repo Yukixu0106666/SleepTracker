@@ -54,3 +54,6 @@ app-example
 # Local data engineering artifacts
 data-platform/output/
 data-platform/**/__pycache__/
+
+# Live LLM evaluation outputs can contain model responses and vary per run
+evals/results/live-*.json

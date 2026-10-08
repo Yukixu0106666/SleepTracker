@@ -19,6 +19,17 @@ Reproduce the compact model deployed in the Morning Report with `npm run model:m
 
 Sleep sessions now enter a durable mobile upload queue and an authenticated PostgreSQL ingestion API, with idempotent writes, retry and deletion events. See [setup and verification](server/INGESTION.md). Cloud deployment and S3/Databricks export are not included yet.
 
+## Recommendation evaluations
+
+The recommendation path has a versioned bilingual evaluation set with strict nested-schema checks, rule-based safety checks, language consistency, scenario requirements, tool-call scoring, latency and token usage. Run the deterministic offline baseline with:
+
+```bash
+npm run test:eval
+npm run eval:local
+```
+
+`npm run eval:live` evaluates the Groq function-calling path when `GROQ_API_KEY` is available and writes a machine-readable report. See [evaluation setup and limitations](evals/README.md). Local fallback scores must not be reported as live-model results.
+
 ## Data engineering extension
 
 See the [local ELT MVP](data-platform/README.md) for a runnable sleep-event pipeline with deduplication, quarantine and daily aggregates, and the [architecture roadmap](docs/data-engineering-architecture.md) for planned microservices, Airflow, Fivetran, Snowflake, dbt, Looker, Hightouch and AWS/EKS integration. Cloud integrations are not deployed.
