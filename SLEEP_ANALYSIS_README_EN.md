@@ -24,6 +24,28 @@ Evaluation methodology:
 - Summary metrics are the mean and sample standard deviation across folds. Each fold is scored by record, so duplicate records still affect weighting.
 - Hyperparameters are fixed in advance. Evaluation folds are not used for tuning or early stopping. These results are development-stage cross-validation results, not an independent external test.
 
+## Current ML Evaluation Results
+
+The following figures come from the saved five-fold grouped cross-validation results in `model_results/`:
+
+| Dataset summary | Value |
+|---|---:|
+| Total records | 374 |
+| Model input features | 11 |
+| Unique feature groups | 130 |
+| Poor-sleep records (quality score < 7) | 117 (31.3%) |
+| Good-sleep records (quality score >= 7) | 257 (68.7%) |
+
+| Model | Macro F1 (mean ± SD) | Poor-sleep recall (mean ± SD) | ROC AUC (mean ± SD) | OOF accuracy |
+|---|---:|---:|---:|---:|
+| Logistic Regression | **0.9818 ± 0.0271** | **0.9917 ± 0.0186** | 0.9979 ± 0.0047 | **98.40%** |
+| Random Forest | 0.9696 ± 0.0301 | 0.9750 ± 0.0373 | **0.9995 ± 0.0011** | 97.33% |
+| XGBoost | 0.9665 ± 0.0268 | 0.9663 ± 0.0350 | **0.9995 ± 0.0011** | 97.06% |
+
+Logistic Regression performs best on macro F1, poor-sleep recall, and out-of-fold (OOF) accuracy, while Random Forest and XGBoost have slightly higher mean ROC AUC. Logistic Regression's OOF confusion matrix is `[[116, 1], [5, 252]]` (true classes by row, predicted classes by column, ordered as `[Poor Sleep, Good Sleep]`), meaning it identifies 116 of the 117 poor-sleep records.
+
+Because these results come from one small dataset with repeated patterns, they may be optimistic. They are suitable for development-time model comparison but do not establish performance on independent external data, next-night prediction, or clinical validity. See `model_results/model_comparison.csv`, `fold_metrics.csv`, and `model_comparison_report.txt` for the complete results.
+
 The local CSV contains 374 rows and 13 columns. After excluding the ID, it contains 132 distinct complete records and 130 groups based on the model inputs. The approximately 450 rows mentioned in the older documentation below are illustrative.
 This experiment evaluates sleep-quality classification in the existing table. It does not represent next-night prediction or clinical-risk validation, and it has not yet been connected to the app's recommendation API.
 Before launching the app, align the model with the fields actually collected and gather real-world labels.
