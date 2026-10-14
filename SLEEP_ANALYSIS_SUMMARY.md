@@ -343,11 +343,13 @@ SleepTracker-main/
 ├── run_analysis.sh                  ← 启动脚本
 ├── SLEEP_ANALYSIS_README.md         ← 详细文档
 ├── SLEEP_ANALYSIS_SUMMARY.md        ← 本文件
-├── Sleep_health_and_lifestyle_dataset.csv  ← 数据文件（自动下载）
-├── 01_distribution_histograms.png   ← 输出图表
-├── 02_boxplots.png                  ← 输出图表
-├── 03_categorical_distribution.png  ← 输出图表
-└── 04_correlation_heatmap.png       ← 输出图表
+├── data/
+│   └── Sleep_health_and_lifestyle_dataset.csv  ← 数据文件（自动下载）
+└── docs/analysis/
+    ├── 01_distribution_histograms.png   ← 输出图表
+    ├── 02_boxplots.png                  ← 输出图表
+    ├── 03_categorical_distribution.png  ← 输出图表
+    └── 04_correlation_heatmap.png       ← 输出图表
 ```
 
 ---

@@ -10,7 +10,7 @@ from sleep_model_comparison import make_splits, prepare_data, score_predictions
 class ComparisonTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.df = pd.read_csv(Path(__file__).with_name('Sleep_health_and_lifestyle_dataset.csv'))
+        cls.df = pd.read_csv(Path(__file__).resolve().parent / 'data' / 'Sleep_health_and_lifestyle_dataset.csv')
 
     def test_group_isolation_and_exactly_one_evaluation_per_row(self):
         X, y, groups = prepare_data(self.df)

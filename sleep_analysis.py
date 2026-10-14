@@ -12,6 +12,7 @@ import os
 import subprocess
 import zipfile
 import warnings
+from pathlib import Path
 
 from sleep_model_comparison import compare_models
 
@@ -21,9 +22,15 @@ warnings.filterwarnings('ignore')
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
 
+ROOT_DIR = Path(__file__).resolve().parent
+DATA_DIR = ROOT_DIR / 'data'
+CHART_DIR = ROOT_DIR / 'docs' / 'analysis'
+DATA_PATH = DATA_DIR / 'Sleep_health_and_lifestyle_dataset.csv'
+
 def download_dataset():
     """尝试下载 Kaggle 数据集"""
-    data_path = 'Sleep_health_and_lifestyle_dataset.csv'
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    data_path = DATA_PATH
     
     if os.path.exists(data_path):
         print(f"✅ 数据文件已存在: {data_path}")
@@ -32,19 +39,20 @@ def download_dataset():
     print("📥 正在下载数据集...")
     try:
         # 尝试使用 Kaggle API
-        result = subprocess.run(
-            ['kaggle', 'datasets', 'download', '-d', 'deadmau49/sleep-health-and-lifestyle-dataset', '-p', '.'],
+        subprocess.run(
+            ['kaggle', 'datasets', 'download', '-d', 'deadmau49/sleep-health-and-lifestyle-dataset', '-p', str(DATA_DIR)],
             capture_output=True, 
             text=True, 
-            timeout=60
+            timeout=60,
+            check=True,
         )
         
         # 解压文件
-        zip_file = 'sleep-health-and-lifestyle-dataset.zip'
+        zip_file = DATA_DIR / 'sleep-health-and-lifestyle-dataset.zip'
         if os.path.exists(zip_file):
             print("📦 正在解压文件...")
             with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                zip_ref.extractall('.')
+                zip_ref.extractall(DATA_DIR)
             os.remove(zip_file)
             print("✅ 数据集下载并解压成功！")
             return data_path
@@ -53,7 +61,7 @@ def download_dataset():
     
     print("\n❌ 无法自动下载，请手动下载：")
     print("   1. 访问: https://www.kaggle.com/datasets/deadmau49/sleep-health-and-lifestyle-dataset")
-    print("   2. 下载 CSV 文件到项目目录")
+    print(f"   2. 下载 CSV 文件到 {DATA_DIR}")
     print("   3. 重新运行此脚本")
     return None
 
@@ -125,6 +133,8 @@ def visualize_data(df, numeric_cols):
     print("📈 生成可视化图表...")
     print("="*80)
     
+    CHART_DIR.mkdir(parents=True, exist_ok=True)
+
     # 1. 直方图
     if len(numeric_cols) > 0:
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
@@ -140,8 +150,9 @@ def visualize_data(df, numeric_cols):
                 axes[idx].grid(axis='y', alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('01_distribution_histograms.png', dpi=300, bbox_inches='tight')
-        print("✅ 已保存: 01_distribution_histograms.png")
+        output_path = CHART_DIR / '01_distribution_histograms.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        print(f"✅ 已保存: {output_path}")
         plt.close()
     
     # 2. 箱线图
@@ -158,8 +169,9 @@ def visualize_data(df, numeric_cols):
             axes[idx].set_ylabel(col)
         
         plt.tight_layout()
-        plt.savefig('02_boxplots.png', dpi=300, bbox_inches='tight')
-        print("✅ 已保存: 02_boxplots.png")
+        output_path = CHART_DIR / '02_boxplots.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        print(f"✅ 已保存: {output_path}")
         plt.close()
     
     # 3. 分类变量分布
@@ -181,8 +193,9 @@ def visualize_data(df, numeric_cols):
             axes[idx].grid(axis='y', alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('03_categorical_distribution.png', dpi=300, bbox_inches='tight')
-        print("✅ 已保存: 03_categorical_distribution.png")
+        output_path = CHART_DIR / '03_categorical_distribution.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        print(f"✅ 已保存: {output_path}")
         plt.close()
 
 def correlation_analysis(numeric_df):
@@ -220,8 +233,9 @@ def correlation_analysis(numeric_df):
                 fmt='.2f', square=True, linewidths=1, cbar_kws={"shrink": 0.8})
     plt.title('相关系数热力图', fontsize=16, fontweight='bold', pad=20)
     plt.tight_layout()
-    plt.savefig('04_correlation_heatmap.png', dpi=300, bbox_inches='tight')
-    print("\n✅ 已保存: 04_correlation_heatmap.png")
+    output_path = CHART_DIR / '04_correlation_heatmap.png'
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    print(f"\n✅ 已保存: {output_path}")
     plt.close()
 
 
@@ -331,10 +345,10 @@ def main():
     print("✅ 分析完成！")
     print("="*80)
     print("\n生成的图表文件：")
-    print("   • 01_distribution_histograms.png - 分布直方图")
-    print("   • 02_boxplots.png - 箱线图")
-    print("   • 03_categorical_distribution.png - 分类分布")
-    print("   • 04_correlation_heatmap.png - 相关性热力图")
+    print("   • docs/analysis/01_distribution_histograms.png - 分布直方图")
+    print("   • docs/analysis/02_boxplots.png - 箱线图")
+    print("   • docs/analysis/03_categorical_distribution.png - 分类分布")
+    print("   • docs/analysis/04_correlation_heatmap.png - 相关性热力图")
     print("\n生成的模型报告：")
     print("   • model_results/model_comparison_report.txt - 三模型交叉验证报告")
     print("\n"*2)

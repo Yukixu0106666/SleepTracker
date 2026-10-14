@@ -85,14 +85,15 @@ jupyter notebook sleep_health_analysis.ipynb
 # 1. 从 https://www.kaggle.com/settings/account 获取 API 密钥
 # 2. 放在 ~/.kaggle/kaggle.json
 # 3. 运行：
-kaggle datasets download -d deadmau49/sleep-health-and-lifestyle-dataset
-unzip sleep-health-and-lifestyle-dataset.zip
+mkdir -p data
+kaggle datasets download -d deadmau49/sleep-health-and-lifestyle-dataset -p data
+unzip data/sleep-health-and-lifestyle-dataset.zip -d data
 ```
 
 #### 选项 B: 手动下载
 1. 访问 https://www.kaggle.com/datasets/deadmau49/sleep-health-and-lifestyle-dataset
 2. 下载 CSV 文件
-3. 放在项目目录下，命名为 `Sleep_health_and_lifestyle_dataset.csv`
+3. 放在 `data/` 目录下，命名为 `Sleep_health_and_lifestyle_dataset.csv`
 
 ## 📊 Notebook 结构
 
@@ -189,7 +190,7 @@ unzip sleep-health-and-lifestyle-dataset.zip
 A: 检查网络连接，或手动从 Kaggle 下载 CSV 文件
 
 **Q: 找不到数据文件？**
-A: 确保文件名为 `Sleep_health_and_lifestyle_dataset.csv` 且在项目根目录
+A: 确保文件名为 `Sleep_health_and_lifestyle_dataset.csv` 且位于 `data/` 目录
 
 **Q: 缺少某些包？**
 A: 运行 `pip install pandas numpy matplotlib seaborn`

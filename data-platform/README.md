@@ -41,4 +41,4 @@ python3 -c 'import sqlite3; db = sqlite3.connect("data-platform/output/warehouse
 - 当前没有更新/删除事件协议、增量水位、分布式并发、用户身份验证或保留期限处理。SQLite 全量重建仅用于本地验证，不应用作生产数据仓库。
 - 无效输入会原样留在 raw；只使用合成或已获准处理的数据。姓名、健康档案和聊天正文不属于这个事件契约。
 
-公开的 `Sleep_health_and_lifestyle_dataset.csv` 是横截面研究数据，不包含真实产品事件时间线，不能当作用户留存、订阅或推荐转化的来源。
+公开的 `data/Sleep_health_and_lifestyle_dataset.csv` 是横截面研究数据，不包含真实产品事件时间线，不能当作用户留存、订阅或推荐转化的来源。

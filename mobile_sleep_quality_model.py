@@ -34,7 +34,7 @@ def build_model():
     ])
 
 
-def train(data_path='Sleep_health_and_lifestyle_dataset.csv'):
+def train(data_path=Path(__file__).resolve().parent / 'data' / 'Sleep_health_and_lifestyle_dataset.csv'):
     frame = pd.read_csv(data_path)
     frame['BMI Category'] = frame['BMI Category'].replace({'Normal Weight': 'Normal'})
     features = frame[FEATURES]

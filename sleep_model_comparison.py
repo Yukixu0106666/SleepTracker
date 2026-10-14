@@ -147,7 +147,7 @@ def compare_models(df, output_dir='model_results', n_splits=5, seed=42):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path,
-                        default=Path(__file__).with_name('Sleep_health_and_lifestyle_dataset.csv'))
+                        default=Path(__file__).resolve().parent / 'data' / 'Sleep_health_and_lifestyle_dataset.csv')
     parser.add_argument('--output-dir', type=Path, default=Path('model_results'))
     args = parser.parse_args()
     compare_models(pd.read_csv(args.data), args.output_dir)
