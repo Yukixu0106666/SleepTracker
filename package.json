@@ -18,7 +18,7 @@
     "db:credential": "npm --prefix server run credential --",
     "test:ingestion": "npm --prefix server test",
     "test:sync": "node --experimental-strip-types --test tests/sleepJournal.test.mjs",
-    "test:model": "node --experimental-strip-types --test tests/sleepQualityModel.test.mjs",
+    "test:model": "node --experimental-strip-types --test tests/sleepQualityModel.test.mjs tests/tonightSleepPrediction.test.mjs",
     "test:health": "node --experimental-strip-types --test tests/healthSleep.test.mjs",
     "test:eval": "node --experimental-strip-types --test evals/evaluation.test.mjs",
     "eval:local": "node --experimental-strip-types evals/run.mjs --mode local",

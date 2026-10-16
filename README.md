@@ -4,7 +4,9 @@ SleepTracker is a cross-platform sleep journal that visualizes weekly trends and
 
 Its companion ML pipeline compares Logistic Regression, Random Forest, and XGBoost with leakage-aware grouped cross-validation, achieving a 0.982 mean macro-F1 score for sleep-quality classification on the development dataset.
 
-The Morning Report deploys a compact Logistic Regression model using app-available sleep duration, age, and BMI-category inputs; it reached 0.960 mean macro-F1 in grouped 5-fold development validation. The broader three-model comparison remains an offline experiment, and neither result is clinically validated.
+The Last Night's Sleep Report uses a compact Logistic Regression model to calculate a retrospective sleep score from app-available sleep duration, age, and BMI-category inputs; it reached 0.960 mean macro-F1 in grouped 5-fold development validation. It is not a forecast of tonight. The broader three-model comparison remains an offline experiment, and neither result is clinically validated.
+
+The Recommendations screen separately provides an experimental tonight forecast after at least three recorded nights. It uses up to seven recent nights, combining the smoothed frequency of 7–9-hour nights with bedtime consistency. The card shows its sample size and data confidence and is explicitly presented as a limited, non-clinical estimate.
 
 ## Demo
 
@@ -13,9 +15,9 @@ npm install
 npm run web
 ```
 
-In the app, use **Track Sleep** to record a session, inspect the model-assisted Morning Report, then open **History**, **Stats**, and **Recommendations** to demonstrate the end-to-end user flow. The report exposes the predicted good-sleep probability, ranked model signals, validation result, and limitations; **Stats** applies the same model across the latest seven days. To reproduce the broader ML comparison, install `requirements-analysis.txt` and run `bash run_model_comparison.sh`; reports are written to `model_results/`.
+In the app, use **Track Sleep** to record a session, inspect the model-assisted Last Night's Sleep Report, then open **History**, **Stats**, and **Recommendations** to demonstrate the end-to-end user flow. The report exposes the retrospective sleep score, ranked scoring factors, validation result, and limitations; **Stats** applies the same scoring model across the latest seven days. To reproduce the broader ML comparison, install `requirements-analysis.txt` and run `bash run_model_comparison.sh`; reports are written to `model_results/`.
 
-Reproduce the compact model deployed in the Morning Report with `npm run model:mobile`. Its fitted coefficients and grouped-validation metrics are saved to `model_results/mobile_sleep_quality_model.json`.
+Reproduce the compact model used by the Last Night's Sleep Report with `npm run model:mobile`. Its fitted coefficients and grouped-validation metrics are saved to `model_results/mobile_sleep_quality_model.json`.
 
 ## Sleep ingestion
 
