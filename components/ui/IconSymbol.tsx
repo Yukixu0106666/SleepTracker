@@ -19,6 +19,7 @@ const MAPPING = {
   'moon.fill': 'dark-mode',
   'gearshape.fill': 'settings',
   'lightbulb.fill': 'lightbulb',
+  'chart.line.uptrend.xyaxis': 'auto-graph',
   'heart.fill': 'favorite',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',

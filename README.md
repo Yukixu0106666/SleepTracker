@@ -6,7 +6,7 @@ Its companion ML pipeline compares Logistic Regression, Random Forest, and XGBoo
 
 The Last Night's Sleep Report uses a compact Logistic Regression model to calculate a retrospective sleep score from app-available sleep duration, age, and BMI-category inputs; it reached 0.960 mean macro-F1 in grouped 5-fold development validation. It is not a forecast of tonight. The broader three-model comparison remains an offline experiment, and neither result is clinically validated.
 
-The Recommendations screen separately provides an experimental tonight forecast after at least three recorded nights. It uses up to seven recent nights, combining the smoothed frequency of 7–9-hour nights with bedtime consistency. The card shows its sample size and data confidence and is explicitly presented as a limited, non-clinical estimate.
+The Recommendations screen separately provides an experimental pre-sleep Logistic Regression estimate using age, BMI, today's activity minutes, stress, resting heart rate, and steps. It is personalized with a gradually weighted signal from up to seven valid recent full-night records; sub-two-hour test sessions are excluded. The base model is validated only on grouped public cross-sectional development data, while the history calibration is not prospectively validated. Reproduce the base artifact with `npm run model:tonight`.
 
 ## Demo
 

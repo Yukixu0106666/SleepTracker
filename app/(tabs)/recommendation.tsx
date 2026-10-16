@@ -1,7 +1,6 @@
 import { getSleepHistory } from '../../services/sleepSync';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Pressable,
@@ -21,12 +20,10 @@ import {
 } from '../../services/dailyRecommendation';
 import { useThemeContext } from '../../theme/ThemeContext';
 import { useLanguage } from '../../theme/LanguageContext';
-import { predictTonightSleep, TonightSleepPrediction } from '../../services/tonightSleepPrediction';
 
 export default function RecommendationScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [recommendation, setRecommendation] = useState<DailyRecommendation | null>(null);
-  const [tonightPrediction, setTonightPrediction] = useState<TonightSleepPrediction | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const { theme } = useThemeContext();
@@ -38,7 +35,6 @@ export default function RecommendationScreen() {
     try {
       const profileData = providedProfile ? null : await AsyncStorage.getItem('userProfile');
       const recentSessions = await getSleepHistory();
-      setTonightPrediction(predictTonightSleep(recentSessions));
       const userProfile = providedProfile ?? (profileData ? (JSON.parse(profileData) as UserProfile) : undefined);
       const sleepSession = providedSession ?? recentSessions.at(-1);
       const generated = await generateDailyRecommendation({ session: sleepSession, profile: userProfile, recentSessions, language });
@@ -61,7 +57,6 @@ export default function RecommendationScreen() {
       try {
         const profileData = await AsyncStorage.getItem('userProfile');
         const recentSessions = await getSleepHistory();
-        setTonightPrediction(predictTonightSleep(recentSessions));
         const savedRecommendation = await AsyncStorage.getItem('dailyRecommendation');
         const userProfile = profileData ? (JSON.parse(profileData) as UserProfile) : undefined;
         const sleepSession = recentSessions.at(-1);
@@ -93,16 +88,6 @@ export default function RecommendationScreen() {
     void loadRecommendation();
   }, [language]);
 
-  useFocusEffect(useCallback(() => {
-    let active = true;
-    getSleepHistory()
-      .then((sessions) => {
-        if (active) setTonightPrediction(predictTonightSleep(sessions));
-      })
-      .catch(() => undefined);
-    return () => { active = false; };
-  }, []));
-
   return (
     <SafeAreaView style={[styles.safeArea, isDark && styles.containerDark]} edges={['top']}>
       <ScrollView contentContainerStyle={[styles.container, isDark && styles.containerDark]}>
@@ -128,47 +113,6 @@ export default function RecommendationScreen() {
               <Text style={[styles.offlineNoticeText, isDark && styles.recommendationTextDark]}>
                 {t('offlinePlan')} {recommendation.fallbackReason}
               </Text>
-            </View>
-          )}
-          {tonightPrediction && (
-            <View style={[styles.forecastCard, isDark && styles.forecastCardDark]}>
-              <Text style={[styles.sectionTitle, isDark && styles.recommendationTextDark]}>{t('tonightPrediction')}</Text>
-              {tonightPrediction.available ? (
-                <>
-                  <View style={styles.forecastScoreRow}>
-                    <Text style={[styles.forecastScore, isDark && styles.recommendationTextDark]}>{tonightPrediction.score}%</Text>
-                    <View style={styles.forecastLabelBlock}>
-                      <Text style={[styles.forecastLabel, isDark && styles.recommendationTextDark]}>
-                        {tonightPrediction.label === 'good' ? t('likelyGoodTonight') : t('likelyPoorTonight')}
-                      </Text>
-                      <Text style={[styles.planPortion, isDark && styles.greetingDark]}>{t('tonightGoodLikelihood')}</Text>
-                    </View>
-                  </View>
-                  <View style={[styles.forecastTrack, isDark && styles.forecastTrackDark]}>
-                    <View style={[styles.forecastFill, { width: `${tonightPrediction.score}%` }]} />
-                  </View>
-                  <Text style={[styles.forecastFactor, isDark && styles.recommendationTextDark]}>
-                    {t('recentGoodNights')}: {tonightPrediction.goodNights}/{tonightPrediction.nightsAnalyzed}
-                  </Text>
-                  <Text style={[styles.forecastFactor, isDark && styles.recommendationTextDark]}>
-                    {t('averageRecentSleep')}: {tonightPrediction.averageDuration?.toFixed(1)} {t('hours')}
-                  </Text>
-                  <Text style={[styles.forecastFactor, isDark && styles.recommendationTextDark]}>
-                    {t('bedtimeVariation')}: ±{tonightPrediction.bedtimeVariationMinutes} {t('minutes')}
-                  </Text>
-                  <Text style={[styles.forecastFactor, isDark && styles.recommendationTextDark]}>
-                    {t('dataConfidence')}: {t(tonightPrediction.confidence === 'high' ? 'confidenceHigh' : tonightPrediction.confidence === 'medium' ? 'confidenceMedium' : 'confidenceLow')}
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <Text style={[styles.recommendationText, isDark && styles.recommendationTextDark]}>{t('needMoreSleepData')}</Text>
-                  <Text style={[styles.planPortion, isDark && styles.greetingDark]}>
-                    {t('recordedNights')}: {tonightPrediction.nightsAnalyzed}/{tonightPrediction.nightsRequired}
-                  </Text>
-                </>
-              )}
-              <Text style={[styles.forecastDisclaimer, isDark && styles.greetingDark]}>{t('tonightPredictionDisclaimer')}</Text>
             </View>
           )}
           <View style={[styles.card, isDark && styles.cardDark]}>
@@ -322,62 +266,6 @@ const styles = StyleSheet.create({
   cardDark: {
     backgroundColor: '#1E293B',
     borderLeftColor: '#60A5FA',
-  },
-  forecastCard: {
-    backgroundColor: '#eef8f7',
-    borderColor: '#2A8C82',
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 16,
-  },
-  forecastCardDark: {
-    backgroundColor: '#12312F',
-    borderColor: '#5CC9BD',
-  },
-  forecastScoreRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  forecastScore: {
-    color: '#176C65',
-    fontSize: 34,
-    fontWeight: '800',
-  },
-  forecastLabelBlock: {
-    flex: 1,
-  },
-  forecastLabel: {
-    color: '#243B39',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  forecastTrack: {
-    backgroundColor: '#D2E7E4',
-    borderRadius: 5,
-    height: 8,
-    marginBottom: 10,
-    marginTop: 10,
-    overflow: 'hidden',
-  },
-  forecastTrackDark: {
-    backgroundColor: '#284C48',
-  },
-  forecastFill: {
-    backgroundColor: '#2A8C82',
-    borderRadius: 5,
-    height: '100%',
-  },
-  forecastFactor: {
-    color: '#334155',
-    fontSize: 13,
-    lineHeight: 20,
-  },
-  forecastDisclaimer: {
-    color: '#66736F',
-    fontSize: 11,
-    lineHeight: 16,
-    marginTop: 10,
   },
   recommendationText: {
     fontSize: 14,

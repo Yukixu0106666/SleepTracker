@@ -68,6 +68,16 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="prediction"
+        options={{
+          title: t('tabPrediction'),
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="chart.line.uptrend.xyaxis" color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="recommendation"
         options={{
           title: t('tabRecommendation'),

@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSHealthShareUsageDescription": "SleepTracker 需要读取您的心率数据，以提供更准确的睡眠分析和健康建议。",
+        "NSHealthShareUsageDescription": "SleepTracker 需要读取您的睡眠、心率、活动和步数数据，以提供个性化睡眠分析和今晚睡眠预测。",
         "NSHealthUpdateUsageDescription": "SleepTracker 需要访问健康数据，以便在未来的版本中支持更智能的健康功能。"
       },
       "bundleIdentifier": "com.yukixu.sleeptracker"
@@ -53,7 +53,7 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "SleepTracker reads your heart-rate and sleep data to show your recent health summary.",
+          "NSHealthShareUsageDescription": "SleepTracker reads sleep, heart-rate, activity, and step data to personalize your sleep summary and tonight prediction.",
           "NSHealthUpdateUsageDescription": "SleepTracker can save sleep data only when you choose to add it."
         }
       ],

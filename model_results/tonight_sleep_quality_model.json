@@ -1,0 +1,50 @@
+{
+  "version": "pre-sleep-logreg-v1",
+  "features": [
+    "Age",
+    "Physical Activity Level",
+    "Stress Level",
+    "Heart Rate",
+    "Daily Steps",
+    "BMI Category"
+  ],
+  "numeric_mean": [
+    42.18449197860963,
+    59.17112299465241,
+    5.385026737967914,
+    70.16577540106952,
+    6816.844919786096
+  ],
+  "numeric_scale": [
+    8.661530606217877,
+    20.802936349731223,
+    1.772152494715317,
+    4.1301428563339595,
+    1615.7512424734216
+  ],
+  "bmi_categories": [
+    "Normal",
+    "Obese",
+    "Overweight"
+  ],
+  "coefficients": [
+    1.0701309972220652,
+    1.2707091596122873,
+    -3.8243243419832207,
+    -1.2364047621882024,
+    -0.742863318087857,
+    0.9800127425003244,
+    0.28452947303981074,
+    -1.2720200010417806
+  ],
+  "intercept": 3.95315225772495,
+  "validation": {
+    "macro_f1": 0.9754593175853019,
+    "poor_sleep_recall": 0.9914529914529915,
+    "roc_auc": 0.9889587282583392,
+    "folds": 5,
+    "rows": 374,
+    "groups": 75
+  },
+  "limitations": "Public cross-sectional development data; not prospective next-night or clinical validation."
+}

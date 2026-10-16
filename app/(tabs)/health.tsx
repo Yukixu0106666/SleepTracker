@@ -4,6 +4,7 @@ import {
     queryCategorySamples,
     requestAuthorization,
 } from '@kingstinct/react-native-healthkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -46,6 +47,9 @@ export default function HealthScreen() {
       await requestAuthorization({
         toRead: [
           'HKQuantityTypeIdentifierHeartRate',
+          'HKQuantityTypeIdentifierRestingHeartRate',
+          'HKQuantityTypeIdentifierStepCount',
+          'HKQuantityTypeIdentifierAppleExerciseTime',
           'HKCategoryTypeIdentifierSleepAnalysis',
         ],
       });
@@ -71,6 +75,7 @@ export default function HealthScreen() {
         sleepDate: sleepSamples.length > 0 ? t('sleepLastDay') : t('noRecentSleep'),
       });
       setStatus(t('healthConnected'));
+      await AsyncStorage.setItem('appleHealthConnected.v1', 'true');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown HealthKit error';
       setStatus(`${t('healthReadError')}: ${message}`);
