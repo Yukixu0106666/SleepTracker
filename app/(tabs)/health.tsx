@@ -7,6 +7,7 @@ import {
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { calculateSleepMinutes } from '../../services/healthSleep';
 import { useLanguage } from '../../theme/LanguageContext';
 
 type HealthSummary = {
@@ -50,7 +51,8 @@ export default function HealthScreen() {
       });
 
       setStatus(t('healthReading'));
-      const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const rangeEnd = new Date();
+      const dayAgo = new Date(rangeEnd.getTime() - 24 * 60 * 60 * 1000);
       const [heartRate, sleepSamples] = await Promise.all([
         getMostRecentQuantitySample('HKQuantityTypeIdentifierHeartRate', 'count/min'),
         queryCategorySamples('HKCategoryTypeIdentifierSleepAnalysis', {
@@ -60,9 +62,7 @@ export default function HealthScreen() {
         }),
       ]);
 
-      const sleepMinutes = sleepSamples.reduce((total, sample) => {
-        return total + (sample.endDate.getTime() - sample.startDate.getTime()) / 60000;
-      }, 0);
+      const sleepMinutes = calculateSleepMinutes(sleepSamples, dayAgo, rangeEnd);
 
       setSummary({
         heartRate: heartRate ? `${Math.round(heartRate.quantity)} ${heartRate.unit}` : t('noData'),
