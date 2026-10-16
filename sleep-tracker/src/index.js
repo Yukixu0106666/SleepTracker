@@ -157,7 +157,7 @@ async function callGroq(messages, env, options = {}) {
       Authorization: `Bearer ${env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: env.GROQ_MODEL || 'openai/gpt-oss-20b',
       messages,
       temperature: 0.2,
       ...options,

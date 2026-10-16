@@ -30,7 +30,7 @@ async function callGroq(context) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL ?? 'openai/gpt-oss-20b',
       messages: [{ role: 'system', content: prompt }, { role: 'user', content: buildUserContext(context) }],
       response_format: { type: 'json_object' },
       temperature: 0.6,

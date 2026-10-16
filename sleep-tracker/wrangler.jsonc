@@ -11,6 +11,9 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"vars": {
+		"GROQ_MODEL": "openai/gpt-oss-20b"
+	},
 	"compatibility_flags": [
 		"nodejs_compat"
 	]

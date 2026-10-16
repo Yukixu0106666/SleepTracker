@@ -164,7 +164,7 @@ const report = {
   schemaVersion: 1,
   evalSet: 'sleep-recommendation-v1',
   mode,
-  model: mode === 'live' ? (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile') : 'deterministic-local-fallback',
+  model: mode === 'live' ? (process.env.GROQ_MODEL || 'openai/gpt-oss-20b') : 'deterministic-local-fallback',
   pricingUsdPerMillionTokens: pricing,
   execution: { delayMs, maxRateLimitRetries },
   generatedAt: new Date().toISOString(),
