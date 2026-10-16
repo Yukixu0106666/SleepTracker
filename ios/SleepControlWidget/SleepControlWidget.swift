@@ -3,7 +3,7 @@ import SwiftUI
 import WidgetKit
 
 private enum SleepStore {
-  static let suiteName = "group.com.anonymous.SleepTracker"
+  static let suiteName = "group.com.yukixu.sleeptracker"
   static let startKey = "sleepStart"
   static let pendingSessionKey = "pendingSleepSession"
 

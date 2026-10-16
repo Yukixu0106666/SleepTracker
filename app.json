@@ -14,7 +14,7 @@
         "NSHealthShareUsageDescription": "SleepTracker 需要读取您的心率数据，以提供更准确的睡眠分析和健康建议。",
         "NSHealthUpdateUsageDescription": "SleepTracker 需要访问健康数据，以便在未来的版本中支持更智能的健康功能。"
       },
-      "bundleIdentifier": "com.anonymous.SleepTracker"
+      "bundleIdentifier": "com.yukixu.sleeptracker"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +28,7 @@
         "BODY_SENSORS",
         "ACTIVITY_RECOGNITION"
       ],
-      "package": "com.anonymous.SleepTracker"
+      "package": "com.yukixu.sleeptracker"
     },
     "web": {
       "bundler": "metro",

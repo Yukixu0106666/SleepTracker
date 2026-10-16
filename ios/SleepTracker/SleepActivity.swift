@@ -3,7 +3,7 @@ import WidgetKit
 
 @objc(SleepActivity)
 class SleepActivity: NSObject {
-  private let suiteName = "group.com.anonymous.SleepTracker"
+  private let suiteName = "group.com.yukixu.sleeptracker"
   private let startKey = "sleepStart"
   private let pendingSessionKey = "pendingSleepSession"
 

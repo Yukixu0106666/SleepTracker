@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>sleeptracker</string>
-          <string>com.anonymous.SleepTracker</string>
+          <string>com.yukixu.sleeptracker</string>
         </array>
       </dict>
       <dict>

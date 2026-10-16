@@ -1,4 +1,4 @@
-package com.anonymous.SleepTracker
+package com.yukixu.sleeptracker
 
 import android.app.Application
 import android.content.res.Configuration

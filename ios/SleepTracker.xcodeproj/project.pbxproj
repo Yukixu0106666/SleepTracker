@@ -458,7 +458,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.SleepTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yukixu.sleeptracker;
 				PRODUCT_NAME = SleepTracker;
 				SWIFT_OBJC_BRIDGING_HEADER = "SleepTracker/SleepTracker-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -490,7 +490,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.SleepTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yukixu.sleeptracker;
 				PRODUCT_NAME = SleepTracker;
 				SWIFT_OBJC_BRIDGING_HEADER = "SleepTracker/SleepTracker-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -633,7 +633,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.SleepTracker.SleepControlWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yukixu.sleeptracker.SleepControlWidget;
 				PRODUCT_NAME = SleepControlWidget;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -651,7 +651,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.SleepTracker.SleepControlWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yukixu.sleeptracker.SleepControlWidget;
 				PRODUCT_NAME = SleepControlWidget;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

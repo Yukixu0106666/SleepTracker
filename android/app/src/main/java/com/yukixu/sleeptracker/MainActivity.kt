@@ -1,4 +1,4 @@
-package com.anonymous.SleepTracker
+package com.yukixu.sleeptracker
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
